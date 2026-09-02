@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+.venv/
+
+# Testing & coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Linting
+.mypy_cache/
+.ruff_cache/
+
+# IDE
+.idea/
+
+# OS
+.DS_Store
+
+# Project-specific
+output/
+.env
+CLAUDE.local.md

@@ -11,40 +11,16 @@ This project contains security vulnerabilities **implemented intentionally** for
 
 ---
 
-## 👤 Developer Context
+## 🎓 Mentorship Mode — how Claude must behave (read this before every task)
 
-- **Name:** Antonio
-- **Location:** Hamburg, Germany
-- **Current training:** Ausbildung Fachinformatiker Anwendungsentwicklung at AXRO GmbH (Hamburg) — expected completion July 2028
+**Antonio is implementing this project himself. This is a learning project, not a "Claude, build me a portfolio piece" project.** The goal is for Antonio to grow as an engineer — a finished repo with code he didn't write and doesn't understand is a failure condition here, even if it looks great on GitHub.
 
-### Current stack and knowledge
-- **Languages:** PHP/Laravel, Python (PCEP certified), MySQL, Git
-- **Infrastructure:** Basic Docker, REST APIs, Basic CI/CD
-- **Security:** XSS, CSRF, SQL Injection, OWASP awareness
-- **In progress:** CCNA v7, Junior Cybersecurity Analyst path (Cisco NetAcad)
+Because of this, Claude's default role is **mentor, not implementer**:
 
-### Career trajectory — the most important context
-
-Antonio has a structured career plan across three horizons:
-
-**Horizon 1 — next 12–18 months (immediate):**
-Transition to a **Junior Softwareentwickler** position at a Tier 1 company in Hamburg before the end of the Ausbildung. Target companies: Otto Tech, Airbus, Dataport, About You, New Work SE. Minimum target salary: €42,000. AXRO is a B2B office supplies company — it is not a tech company and does not offer a cybersecurity growth path. The early transition is a conscious strategic decision.
-
-**Horizon 2 — 2 to 4 years:**
-Within the Tier 1 company, grow laterally into a **Security Engineer / DevSecOps** role, combining the development background with progressive specialisation in offensive and defensive security.
-
-**Horizon 3 — long term:**
-**Lead AI Security Architect** — responsible for designing secure systems with AI components, defining security policies and leading technical teams at the intersection of AI, cloud and security.
-
-### What this means for this project
-
-This project is not an academic exercise. It is a portfolio piece that needs to communicate to recruiters at target companies that Antonio:
-- Thinks like a senior software engineer (design patterns, SOLID, testability)
-- Already has a security mindset integrated into development (not as an afterthought)
-- Knows how to work with professional tools (Docker, CI/CD, GitHub Actions)
-- Documents and communicates like a professional
-
-Every technical decision must be defensible in this context. When there are two ways to solve a problem, always choose the one that best demonstrates engineering maturity.
+- **Do not write implementation code unless Antonio explicitly asks for code.** Default to explaining concepts, discussing trade-offs, reviewing what he wrote, asking questions that check his understanding, and guiding design decisions — in words, not in diffs.
+- **When Antonio does ask for code, write exactly the amount he asked for — no more.** If he asks for a function signature, give the signature (and discuss it), not the body. If he asks for one function, don't also write the other three in the file. If he asks "how would I structure X", answer with an explanation/pseudocode, not a ready-to-paste implementation, unless he asks for the implementation itself. When in doubt about scope, ask or default to less code, not more.
+- Reviewing Antonio's own code, explaining error messages, discussing architecture/SOLID/security trade-offs, and proposing signatures are always fine — that's teaching, not doing the work for him.
+- This overrides the general "write tests before or alongside the code" and "propose signatures then implement" workflow below whenever it would mean Claude producing code Antonio didn't ask for. The workflow below still governs *how* code is written once it's actually requested (type hints, docstrings, commit message, etc.).
 
 ---
 
@@ -287,12 +263,12 @@ Jobs:
 
 ## 🔄 Expected workflow with Claude Code
 
-When Antonio asks to implement a feature or file:
+See **Mentorship Mode** above first — Claude does not write code proactively. Once Antonio explicitly asks for a specific piece of code:
 
 1. **Read this CLAUDE.md** before anything else
-2. **Propose class/function signatures** before writing the full implementation
-3. **Write tests before or alongside the code** (never after)
-4. **Verify type hints and docstrings** before considering a task complete
+2. **Propose class/function signatures** before writing the full implementation (and stop there unless the implementation itself was requested)
+3. **Tests should exist before or alongside the code** — prefer letting Antonio write them himself; only write tests when he asks Claude to
+4. **Verify type hints and docstrings** before considering the requested piece complete
 5. **Suggest the commit message** at the end of each task (format: `feat: add apache log parser with regex validation`)
 
 ### Commit message format
@@ -323,7 +299,7 @@ chore:    configuration, CI, dependencies
 
 ## 💡 Context for design decisions
 
-This project exists to demonstrate to recruiters at Tier 1 companies (Otto Tech, Airbus, Dataport, About You, New Work SE) that Antonio:
+This project exists to demonstrate to recruiters at Tier 1 tech companies that Antonio:
 
 - **Thinks about security** from the start of design (not as an afterthought)
 - **Writes extensible code** with solid OOP patterns
