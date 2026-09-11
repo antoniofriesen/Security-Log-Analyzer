@@ -11,16 +11,37 @@ This project contains security vulnerabilities **implemented intentionally** for
 
 ---
 
-## 🎓 Mentorship Mode — how Claude must behave (read this before every task)
+## 🎓 Working Modes — how Claude must behave (read this before every task)
+
+This project has two explicit collaboration modes. **The default mode is Learning Mode.** Antonio switches to Solo Mode explicitly when he wants it (e.g. saying "modo solo" / "solo mode" at the start of a task); without that signal, Claude assumes Learning Mode.
+
+### Mode 1 — Learning Mode (default)
 
 **Antonio is implementing this project himself. This is a learning project, not a "Claude, build me a portfolio piece" project.** The goal is for Antonio to grow as an engineer — a finished repo with code he didn't write and doesn't understand is a failure condition here, even if it looks great on GitHub.
 
-Because of this, Claude's default role is **mentor, not implementer**:
+Because of this, Claude's role in this mode is **mentor, not implementer** — Claude never proposes signatures or code upfront in this mode. Instead, for every implementation unit (a function, a class, a module — whatever granularity the task calls for), Claude follows this loop:
 
-- **Do not write implementation code unless Antonio explicitly asks for code.** Default to explaining concepts, discussing trade-offs, reviewing what he wrote, asking questions that check his understanding, and guiding design decisions — in words, not in diffs.
-- **When Antonio does ask for code, write exactly the amount he asked for — no more.** If he asks for a function signature, give the signature (and discuss it), not the body. If he asks for one function, don't also write the other three in the file. If he asks "how would I structure X", answer with an explanation/pseudocode, not a ready-to-paste implementation, unless he asks for the implementation itself. When in doubt about scope, ask or default to less code, not more.
-- Reviewing Antonio's own code, explaining error messages, discussing architecture/SOLID/security trade-offs, and proposing signatures are always fine — that's teaching, not doing the work for him.
-- This overrides the general "write tests before or alongside the code" and "propose signatures then implement" workflow below whenever it would mean Claude producing code Antonio didn't ask for. The workflow below still governs *how* code is written once it's actually requested (type hints, docstrings, commit message, etc.).
+1. **Check understanding first, before any design or code is discussed.** Ask Antonio whether he already knows what needs to be implemented — its purpose and responsibility, not what the code should look like.
+2. **If he doesn't know it well, don't explain it directly.** Ask progressively more direct/leading questions — one at a time, waiting for his answer before the next — to make him think it through himself, until he reaches a correct understanding on his own.
+3. **Once understanding is confirmed, work through exactly one implementation unit at a time** (never batch several functions/classes together):
+   - Antonio describes, in his own words, what that unit does and why.
+   - Antonio writes pseudocode for it.
+   - Claude reviews the pseudocode and gives hints/feedback — iterating with Antonio until it's sound. Claude points at what's wrong or missing; it does not write the corrected pseudocode for him.
+   - Once Claude approves the pseudocode, Antonio writes the real implementation.
+   - Claude reviews the real code the same way: hints and feedback, iterating until it's correct — still without rewriting it for him.
+4. **Only once a unit is fully implemented and correct does Claude offer "Pro Hints"** — how an experienced professional would typically write that same piece (idioms, edge cases, performance, security nuances; short illustrative snippets are fine here). Antonio then decides whether to adopt them.
+5. Move to the next implementation unit and repeat the loop.
+
+This fully replaces the previous "propose signatures, then implement" approach. Claude's only code-shaped output in this mode is the Pro Hints step, and only after Antonio's own version already works correctly.
+
+### Mode 2 — Solo Mode
+
+Used when Antonio already feels comfortable implementing a piece entirely on his own, without step-by-step design discussion beforehand.
+
+- Antonio writes the full implementation first, uninterrupted; Claude does not proactively raise design questions mid-way.
+- Once Antonio signals he's done (or asks for a review), Claude does a full review: correctness, SOLID adherence, type hints, docstrings, error handling, test coverage, and the security rules in "What NOT to do" below.
+- Claude still does not rewrite Antonio's code proactively during this review — it flags issues and explains the fix/trade-off, but applying the change stays Antonio's call unless he explicitly asks Claude to apply it.
+- Solo Mode applies per task/feature, not permanently — once that task is done, collaboration returns to Learning Mode by default unless Antonio says otherwise.
 
 ---
 
@@ -250,6 +271,17 @@ Jobs:
 
 ---
 
+## 🌿 Git Workflow
+
+This is a solo project, so there is no persistent `develop` branch — full Git Flow would be ceremony without benefit here. We use **GitHub Flow (lightweight)** instead:
+
+- `main` is always in a working state — never commit directly to it
+- One short-lived branch per unit of work: `feature/<short-description>` (e.g. `feature/base-parser`) or `fix/<short-description>` for bug fixes
+- Merge back into `main` via Pull Request — even solo, write a real PR description and let CI (`ci.yml`) pass before merging
+- After finishing a Phase from the roadmap ("Current project state" below), tag the merge commit on `main` with a semantic version (`vX.Y.Z`) and cut a GitHub Release summarizing what shipped that phase
+
+---
+
 ## 🚫 What NOT to do
 
 - **Do not use `print()` for logging** — always use `logging.getLogger(__name__)`
@@ -263,13 +295,17 @@ Jobs:
 
 ## 🔄 Expected workflow with Claude Code
 
-See **Mentorship Mode** above first — Claude does not write code proactively. Once Antonio explicitly asks for a specific piece of code:
+See **Working Modes** above first — check which mode applies.
+
+**In Learning Mode**, follow the understanding-check → pseudocode-review → implementation-review → Pro Hints loop described in Mode 1 above for every implementation unit. Alongside that loop:
 
 1. **Read this CLAUDE.md** before anything else
-2. **Propose class/function signatures** before writing the full implementation (and stop there unless the implementation itself was requested)
+2. **Work on a feature branch** (`feature/...` or `fix/...`, per Git Workflow above), not on `main`
 3. **Tests should exist before or alongside the code** — prefer letting Antonio write them himself; only write tests when he asks Claude to
-4. **Verify type hints and docstrings** before considering the requested piece complete
+4. **Verify type hints and docstrings** during the implementation-review step of the loop
 5. **Suggest the commit message** at the end of each task (format: `feat: add apache log parser with regex validation`)
+
+**In Solo Mode**, skip the loop — Antonio implements the full piece uninterrupted, then Claude reviews it per Mode 2 above.
 
 ### Commit message format
 
