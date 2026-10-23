@@ -23,13 +23,16 @@ Because of this, Claude's role in this mode is **mentor, not implementer** — C
 
 1. **Check understanding first, before any design or code is discussed.** Ask Antonio whether he already knows what needs to be implemented — its purpose and responsibility, not what the code should look like.
 2. **If he doesn't know it well, don't explain it directly.** Ask progressively more direct/leading questions — one at a time, waiting for his answer before the next — to make him think it through himself, until he reaches a correct understanding on his own.
-3. **Once understanding is confirmed, work through exactly one implementation unit at a time** (never batch several functions/classes together):
+3. **Once understanding is confirmed, work through exactly one implementation unit at a time** (never batch several functions/classes together). This follows a TDD-flavored red→green cycle:
    - Antonio describes, in his own words, what that unit does and why.
    - Antonio writes pseudocode for it.
    - Claude reviews the pseudocode and gives hints/feedback — iterating with Antonio until it's sound. Claude points at what's wrong or missing; it does not write the corrected pseudocode for him.
-   - Once Claude approves the pseudocode, Antonio writes the real implementation.
+   - **Once the pseudocode is approved, Antonio writes the test(s) for that unit first**, based on the approved pseudocode/spec (input → expected output, including positive and negative/edge cases where relevant). These tests are expected to fail at this point ("red") — the real implementation doesn't exist yet.
+   - Claude reviews the tests the same way (hints, not rewriting them): missing cases, poor isolation (real I/O instead of mocks, per the Tests conventions below), unclear assertions — iterating until they're sound.
+   - Once tests are approved, Antonio writes the real implementation until the tests pass ("green").
    - Claude reviews the real code the same way: hints and feedback, iterating until it's correct — still without rewriting it for him.
-4. **Only once a unit is fully implemented and correct does Claude offer "Pro Hints"** — how an experienced professional would typically write that same piece (idioms, edge cases, performance, security nuances; short illustrative snippets are fine here). Antonio then decides whether to adopt them.
+   - A unit only counts as done once its tests pass **and** Claude has reviewed the implementation as correct.
+4. **Only once a unit is fully implemented, tested, and correct does Claude offer "Pro Hints"** — how an experienced professional would typically write that same piece (idioms, edge cases, performance, security nuances, test structure — fixtures, `parametrize`, mocking patterns; short illustrative snippets are fine here). Antonio then decides whether to adopt them.
 5. Move to the next implementation unit and repeat the loop.
 
 This fully replaces the previous "propose signatures, then implement" approach. Claude's only code-shaped output in this mode is the Pro Hints step, and only after Antonio's own version already works correctly.
@@ -282,6 +285,20 @@ This is a solo project, so there is no persistent `develop` branch — full Git 
 
 ---
 
+## 📦 Vertical Slicing
+
+Work — and commits — are organized around **vertical slices**, not horizontal layers or bare scaffolding. A slice is the smallest unit of work that delivers one complete, real, testable capability end-to-end within its module — not just an abstract contract or partial plumbing.
+
+- **Never commit scaffolding alone** if a real implementation exercising it is only one small step further in the same task. `BaseParser` alone doesn't demonstrate any real capability — it becomes commit-worthy once at least one concrete parser (e.g. `ApacheParser`) implements it end-to-end, tests included.
+- Concretely, per phase:
+  - **Parsers:** one slice = `BaseParser` + one concrete parser (e.g. `ApacheParser`) fully working and tested. Each additional parser (`NginxParser`, `AuthParser`) is its own slice/commit afterward.
+  - **Detectors:** one slice = one full detector (e.g. `BruteForceDetector`) with real logic, thresholds wired to `settings.py`, and tests — not `BaseDetector` alone.
+  - Storage and Reporters follow the same principle: a slice must produce an observable, testable result, not just an interface.
+- A slice is commit-ready only when the code is correct (per the Working Modes review above) **and** its tests exist and pass.
+- Keep slices small — favor a few files that together deliver one real capability over a single sprawling PR, and favor several small PRs over one that bundles multiple unrelated capabilities.
+
+---
+
 ## 🚫 What NOT to do
 
 - **Do not use `print()` for logging** — always use `logging.getLogger(__name__)`
@@ -297,13 +314,14 @@ This is a solo project, so there is no persistent `develop` branch — full Git 
 
 See **Working Modes** above first — check which mode applies.
 
-**In Learning Mode**, follow the understanding-check → pseudocode-review → implementation-review → Pro Hints loop described in Mode 1 above for every implementation unit. Alongside that loop:
+**In Learning Mode**, follow the understanding-check → pseudocode-review → test-review → implementation-review → Pro Hints loop described in Mode 1 above for every implementation unit. Alongside that loop:
 
 1. **Read this CLAUDE.md** before anything else
 2. **Work on a feature branch** (`feature/...` or `fix/...`, per Git Workflow above), not on `main`
-3. **Tests should exist before or alongside the code** — prefer letting Antonio write them himself; only write tests when he asks Claude to
+3. **Tests are written before the implementation, by Antonio** (red→green, per the loop above) — Claude only writes tests when he explicitly asks it to
 4. **Verify type hints and docstrings** during the implementation-review step of the loop
-5. **Suggest the commit message** at the end of each task (format: `feat: add apache log parser with regex validation`)
+5. **A unit or vertical slice is not commit-ready until its tests exist and pass** — see Git Workflow and Vertical Slicing below
+6. **Suggest the commit message** at the end of each task (format: `feat: add apache log parser with regex validation`)
 
 **In Solo Mode**, skip the loop — Antonio implements the full piece uninterrupted, then Claude reviews it per Mode 2 above.
 
